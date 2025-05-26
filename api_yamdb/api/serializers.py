@@ -6,7 +6,6 @@ from api.validators import username_validator
 from users.models import User
 
 
-
 class UserSerializer(ModelSerializer):
     class Meta:
         fields = (
