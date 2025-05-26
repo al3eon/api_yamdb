@@ -21,7 +21,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -102,3 +101,25 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
+
+AUTH_USER_MODEL = 'users.User'
+
+OUTPUT_LENGTH = 30
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+
+EMAIL_FILE_PATH = BASE_DIR / 'send_mail'
+
+DEFAULT_FROM_EMAIL = "admin@yamdb.com"
+
+LIMIT_USERNAME = 150
+
+LIMIT_EMAIL = 254
+
+LIMIT_CODE = 150
+
+LIMIT_SLUG = 50
+
+LIMIT_NAME = 256
+
+MIN_YEAR = 1000
