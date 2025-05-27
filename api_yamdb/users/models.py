@@ -12,7 +12,7 @@ class User(AbstractUser):
         USER = 'user', _('Пользователь')
         MODERATOR = 'moderator', _('Модератор')
         ADMIN = 'admin', _('Администратор')
-    
+
     username = models.CharField(
         _('Имя пользователя'),
         max_length=settings.LIMIT_USERNAME,
