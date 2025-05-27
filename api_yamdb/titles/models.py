@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 
 
 class Genre(models.Model):
@@ -87,6 +88,10 @@ class Title(models.Model):
 
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+
+    @property
+    def rating(self):
+        return self.reviews.aggregate(Avg('score'))['score__avg']
 
     def __str__(self):
         """
