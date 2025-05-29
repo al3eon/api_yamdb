@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from api.validators import username_validator
@@ -78,23 +77,10 @@ class User(AbstractUser):
             or self.is_staff
         )
 
-    def clean(self):
-        if self.username.lower() == 'me':
-            raise ValidationError(
-                _('Использовать имя пользователя "%(username)s" запрещено')
-                % {'username': 'me'}
-            )
-        super().clean()
-
     class Meta:
         verbose_name = _('Пользователь')
         verbose_name_plural = _('Пользователи')
         ordering = ('username',)
-        constraints = [
-            models.CheckConstraint(
-                check=~models.Q(username="me"), name="name_not_me"
-            )
-        ]
 
     def __str__(self):
         return self.username[:settings.OUTPUT_LENGTH]

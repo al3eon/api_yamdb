@@ -1,19 +1,14 @@
 import re
-from datetime import datetime
-
 from django.core.exceptions import ValidationError
 
 
-def get_year_now():
-    return datetime.now().year
-
-
 def username_validator(value):
-    unmatched = re.sub(r"[\w.@+-]", "", value)
-    if value == "me":
+    if value.lower() == 'me':
         raise ValidationError('Имя пользователя "me" использовать нельзя!')
-    elif value in unmatched:
+
+    invalid_chars = re.sub(r'^[\w.@+-]+\Z', '', value)
+    if invalid_chars:
         raise ValidationError(
-            f"Имя пользователя не должно содержать {unmatched}"
+            f'Имя пользователя содержит недопустимые символы: {invalid_chars}'
         )
     return value

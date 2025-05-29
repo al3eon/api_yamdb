@@ -1,8 +1,10 @@
 from django.conf import settings
-from django.contrib.auth import authenticate
-from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from users.models import User
 from api.validators import username_validator
@@ -12,22 +14,11 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role'
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role'
         )
-        extra_kwargs = {
-            'role': {'required': False}
-        }
 
     def validate_username(self, value):
-        if value.lower() == 'me':
-            raise serializers.ValidationError(
-                _('Использовать имя "me" в качестве username запрещено')
-            )
         return username_validator(value)
 
 
@@ -48,46 +39,51 @@ class SignupSerializer(serializers.Serializer):
     )
 
     def validate(self, data):
-        username = data.get('username')
-        email = data.get('email')
-        email_error = _('Email не соответствует пользователю')
-        username_error = _('Username не соответствует пользователю')
+        username = data['username']
+        email = data['email']
 
         if User.objects.filter(username=username).exists():
-            user = User.objects.get(username=username)
-            if user.email != email:
-                raise serializers.ValidationError({'email': email_error})
+            if User.objects.get(username=username).email != email:
+                raise serializers.ValidationError(
+                    {'email': 'Email не соответствует пользователю'}
+                )
 
         if User.objects.filter(email=email).exists():
-            user = User.objects.get(email=email)
-            if user.username != username:
-                raise serializers.ValidationError({'username': username_error})
+            if User.objects.get(email=email).username != username:
+                raise serializers.ValidationError(
+                    {'username': 'Username не соответствует пользователю'}
+                )
 
         return data
 
+    def create(self, validated_data):
+        user, created = User.objects.get_or_create(
+            username=validated_data['username'],
+            email=validated_data['email']
+        )
+        user.confirmation_code = default_token_generator.make_token(user)
+        user.save()
+
+        send_mail(
+            'Код подтверждения для YaMDb',
+            f'Ваш код подтверждения: {user.confirmation_code}',
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+        return user
+
 
 class TokenSerializer(serializers.Serializer):
-    username = serializers.CharField(
-        max_length=settings.LIMIT_USERNAME,
-        required=True,
-        validators=[username_validator]
-    )
-    confirmation_code = serializers.CharField(
-        max_length=settings.LIMIT_CODE,
-        required=True
-    )
+    username = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(required=True)
 
     def validate(self, data):
-        user = authenticate(
-            username=data.get('username'),
-            confirmation_code=data.get('confirmation_code')
-        )
-
-        if not user:
+        user = get_object_or_404(User, username=data['username'])
+        if not default_token_generator.check_token(
+            user, data['confirmation_code']
+        ):
             raise serializers.ValidationError(
-                _('Неверная комбинация username и кода подтверждения')
+                'Неверный код подтверждения'
             )
-
-        return {
-            'token': str(AccessToken.for_user(user))
-        }
+        return {'token': str(AccessToken.for_user(user))}
