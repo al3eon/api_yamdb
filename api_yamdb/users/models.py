@@ -92,11 +92,7 @@ class User(AbstractUser):
         ordering = ('username',)
         constraints = [
             models.CheckConstraint(
-                check=~models.Q(username__iexact='me'),
-                name='username_is_not_me',
-                violation_error_message=_(
-                    'Имя пользователя не может быть "%(username)s"'
-                ) % {'username': 'me'}
+                check=~models.Q(username="me"), name="name_not_me"
             )
         ]
 
