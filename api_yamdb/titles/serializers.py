@@ -7,7 +7,7 @@ from api.validators import (slug_validator_genre, slug_validator_category,
 
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
-        many=True,  # Для обработки списка жанров
+        many=True,
         slug_field='slug',
         queryset=Genre.objects.all()
     )
@@ -15,16 +15,36 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all()
     )
-    rating = serializers.SerializerMethodField()
+    #rating = serializers.SerializerMethodField()
     name = serializers.CharField(validators=[name_validator])
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'rating'
+        fields = ('id', 'name', 'year',
                   'description', 'genre', 'category')
 
     def get_rating(self, obj):
         return obj.rating
+
+    def get_genres(self, obj):
+        """Возвращаем список жанров с name и slug"""
+        return [
+            {
+                'name': genre.name,
+                'slug': genre.slug
+            }
+            for genre in obj.genres.all()
+        ]
+
+    def to_representation(self, instance):
+        """Преобразуем вывод, чтобы category возвращалась как объект"""
+        representation = super().to_representation(instance)
+        representation['category'] = {
+            'name': instance.category.name,
+            'slug': instance.category.slug
+        }
+
+        return representation
 
 
 class GenreSerializer(serializers.ModelSerializer):

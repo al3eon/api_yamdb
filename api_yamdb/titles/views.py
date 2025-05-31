@@ -17,9 +17,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_fields = ['category__slug', 'genre__slug', 'name', 'year']
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    def retrieve(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
