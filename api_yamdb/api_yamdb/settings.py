@@ -21,6 +21,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'titles',
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -82,6 +84,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated', 
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+}
+
 
 # Internationalization
 
@@ -100,4 +110,26 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+AUTH_USER_MODEL = 'users.User'
+
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
+
+OUTPUT_LENGTH = 30
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+EMAIL_FILE_PATH = BASE_DIR / 'send_mail'
+
+DEFAULT_FROM_EMAIL = 'admin@yamdb.com'
+
+LIMIT_USERNAME = 150
+
+LIMIT_EMAIL = 254
+
+LIMIT_CODE = 150
+
+LIMIT_SLUG = 50
+
+LIMIT_NAME = 256
+
+MIN_YEAR = 1000

@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Avg
+from django.contrib.auth.models import AbstractUser
 
 
 class Genre(models.Model):
@@ -65,16 +66,13 @@ class Title(models.Model):
         category(ForeignKey): Связь с категорией. При удалении становится NULL.
     """
 
-    name = models.CharField('Название произведения', max_length=128)
+    name = models.CharField('Название произведения', max_length=256)
     description = models.TextField('Описание', null=True, blank=True)
-    genre = models.ForeignKey(
-        Genre, related_name='titles',
-        verbose_name='Жанр',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=False
+    genre = models.ManyToManyField(
+        Genre, through='GenreTitle', related_name='titles',
+        verbose_name='Жанр'
     )
-    year = models.DateField('Год произведения')
+    year = models.IntegerField('Год произведения')
     category = models.ForeignKey(
         Category, related_name='titles',
         verbose_name='Категория',
@@ -100,3 +98,11 @@ class Title(models.Model):
         Для строкового представления объекта Title.
         """
         return self.name
+
+
+class GenreTitle(models.Model):
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('title', 'genre')
