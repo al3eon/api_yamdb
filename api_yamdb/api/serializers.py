@@ -1,13 +1,13 @@
-from django.conf import settings
+# from django.conf import settings
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 from users.models import User
 from api.validators import username_validator
+from api_yamdb.settings import LIMIT_USERNAME, LIMIT_EMAIL, DEFAULT_FROM_EMAIL
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,12 +29,12 @@ class UserEditSerializer(UserSerializer):
 
 class SignupSerializer(serializers.Serializer):
     username = serializers.CharField(
-        max_length=settings.LIMIT_USERNAME,
+        max_length=LIMIT_USERNAME,
         required=True,
         validators=[username_validator]
     )
     email = serializers.EmailField(
-        max_length=settings.LIMIT_EMAIL,
+        max_length=LIMIT_EMAIL,
         required=True
     )
 
@@ -67,7 +67,7 @@ class SignupSerializer(serializers.Serializer):
         send_mail(
             'Код подтверждения для YaMDb',
             f'Ваш код подтверждения: {user.confirmation_code}',
-            settings.DEFAULT_FROM_EMAIL,
+            DEFAULT_FROM_EMAIL,
             [user.email],
             fail_silently=False,
         )

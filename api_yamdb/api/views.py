@@ -18,6 +18,21 @@ class UserViewSet(ModelViewSet):
     lookup_field = 'username'
     permission_classes = (IsAdmin,)
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(username__icontains=search)
+        return queryset
+
+    def update(self, request, *args, **kwargs):
+        if request.method == 'PUT':
+            return Response(
+                {'detail': 'Метод PUT не разрешен. Используйте PATCH.'},
+                status=status.HTTP_405_METHOD_NOT_ALLOWED
+            )
+        return super().update(request, *args, **kwargs)
+
     @action(
         methods=['get', 'patch'],
         detail=False,

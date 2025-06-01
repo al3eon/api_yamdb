@@ -118,11 +118,12 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-OUTPUT_LENGTH = 30
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = BASE_DIR / 'send_mail'
+
+OUTPUT_LENGTH = 30
 
 DEFAULT_FROM_EMAIL = 'admin@yamdb.com'
 

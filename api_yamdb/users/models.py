@@ -1,9 +1,11 @@
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from api.validators import username_validator
+from api_yamdb.settings import (
+    LIMIT_USERNAME, LIMIT_EMAIL, LIMIT_CODE, OUTPUT_LENGTH
+)
 
 
 class User(AbstractUser):
@@ -14,12 +16,12 @@ class User(AbstractUser):
 
     username = models.CharField(
         _('Имя пользователя'),
-        max_length=settings.LIMIT_USERNAME,
+        max_length=LIMIT_USERNAME,
         unique=True,
         help_text=_(
             'Обязательное поле. Не более %(limit)s символов. '
             'Только буквы, цифры и @/./+/-/_.'
-        ) % {'limit': settings.LIMIT_USERNAME},
+        ) % {'limit': LIMIT_USERNAME},
         validators=[username_validator],
         error_messages={
             'unique': _('Пользователь с таким именем уже существует!'),
@@ -27,7 +29,7 @@ class User(AbstractUser):
     )
     email = models.EmailField(
         _('Электронная почта'),
-        max_length=settings.LIMIT_EMAIL,
+        max_length=LIMIT_EMAIL,
         unique=True,
         error_messages={
             'unique': _('Пользователь с таким email уже существует!'),
@@ -46,19 +48,19 @@ class User(AbstractUser):
     )
     confirmation_code = models.CharField(
         _('Код подтверждения'),
-        max_length=settings.LIMIT_CODE,
+        max_length=LIMIT_CODE,
         blank=True,
         null=True,
         help_text=_('Код для подтверждения регистрации')
     )
     first_name = models.CharField(
         _('Имя'),
-        max_length=settings.LIMIT_USERNAME,
+        max_length=LIMIT_USERNAME,
         blank=True
     )
     last_name = models.CharField(
         _('Фамилия'),
-        max_length=settings.LIMIT_USERNAME,
+        max_length=LIMIT_USERNAME,
         blank=True
     )
 
@@ -83,4 +85,4 @@ class User(AbstractUser):
         ordering = ('username',)
 
     def __str__(self):
-        return self.username[:settings.OUTPUT_LENGTH]
+        return self.username[:OUTPUT_LENGTH]
