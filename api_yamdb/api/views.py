@@ -1,8 +1,9 @@
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, mixins, filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 from users.models import User
 from api.serializers import (
@@ -12,26 +13,23 @@ from api.serializers import (
 from api.permissions import IsAdmin
 
 
-class UserViewSet(ModelViewSet):
+class UserViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
     permission_classes = (IsAdmin,)
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    search_fields = ['=username']
+    filterset_fields = ['username']
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        search = self.request.query_params.get('search', None)
-        if search:
-            queryset = queryset.filter(username__icontains=search)
-        return queryset
-
-    def update(self, request, *args, **kwargs):
-        if request.method == 'PUT':
-            return Response(
-                {'detail': 'Метод PUT не разрешен. Используйте PATCH.'},
-                status=status.HTTP_405_METHOD_NOT_ALLOWED
-            )
-        return super().update(request, *args, **kwargs)
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
     @action(
         methods=['get', 'patch'],
