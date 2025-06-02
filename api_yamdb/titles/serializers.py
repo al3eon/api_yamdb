@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from titles.models import Genre, Category, Title
-from api.validators import (slug_validator_genre, slug_validator_category,
+from .validators import (slug_validator_genre, slug_validator_category,
                             name_validator)
 
 
