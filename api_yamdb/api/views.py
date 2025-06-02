@@ -1,16 +1,17 @@
-from rest_framework.decorators import action, api_view
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets, mixins, filters
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, mixins, status, viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from users.models import User
-from api.serializers import (
-    UserSerializer, UserEditSerializer,
-    SignupSerializer, TokenSerializer
-)
 from api.permissions import IsAdmin
+from api.serializers import (
+    SignupSerializer,
+    TokenSerializer,
+    UserEditSerializer,
+    UserSerializer,
+)
+from users.models import User
 
 
 class UserViewSet(
