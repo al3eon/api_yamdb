@@ -13,7 +13,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.select_related('category').prefetch_related('genre').all().order_by('id')
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
-    filterset_class = (TitleFilter,)
+    filterset_class = TitleFilter
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
@@ -41,7 +41,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
-    permission_classes = []
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name',]
     lookup_field = 'slug'
