@@ -1,10 +1,12 @@
 from django.db import models
 from django.db.models import Avg
 
+from api_yamdb.settings import LIMIT_NAME, LIMIT_SLUG
+
 
 class Genre(models.Model):
-    name = models.CharField('Название жанра', max_length=256)
-    slug = models.SlugField('Слаг', unique=True, max_length=50)
+    name = models.CharField('Название жанра', max_length=LIMIT_NAME)
+    slug = models.SlugField('Слаг', unique=True, max_length=LIMIT_SLUG)
 
     class Meta:
         verbose_name = 'Жанр'
@@ -15,8 +17,8 @@ class Genre(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField('Название категории', max_length=256)
-    slug = models.SlugField('Слаг', max_length=50, unique=True)
+    name = models.CharField('Название категории', max_length=LIMIT_NAME)
+    slug = models.SlugField('Слаг', max_length=LIMIT_SLUG, unique=True)
 
     class Meta:
         verbose_name = 'Категория'
@@ -27,7 +29,7 @@ class Category(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField('Название произведения', max_length=256)
+    name = models.CharField('Название произведения', max_length=LIMIT_NAME)
     description = models.TextField('Описание', null=True, blank=True)
     genre = models.ManyToManyField(
         Genre,

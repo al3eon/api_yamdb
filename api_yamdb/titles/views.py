@@ -1,11 +1,10 @@
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import filters, status, viewsets
 from rest_framework.response import Response
 
+from api.permissions import IsAdminOrReadOnly
 from titles.filters import TitleFilter
 from titles.models import Category, Genre, Title
-from titles.permission import IsAdminOrReadOnly
 from titles.serializers import (
     CategorySerializer,
     GenreSerializer,
