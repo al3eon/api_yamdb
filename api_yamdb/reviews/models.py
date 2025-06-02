@@ -4,6 +4,9 @@ from django.db import models
 
 from titles.models import Title
 
+MIN_SCORE = 1
+MAX_SCORE = 10
+
 
 class Review(models.Model):
     title = models.ForeignKey(
@@ -18,7 +21,8 @@ class Review(models.Model):
         related_name='reviews',
     )
     score = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        validators=[MinValueValidator(MIN_SCORE),
+                    MaxValueValidator(MAX_SCORE)],
     )
     pub_date = models.DateTimeField(auto_now_add=True)
 
