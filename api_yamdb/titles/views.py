@@ -2,28 +2,35 @@ from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
+from titles.filters import TitleFilter
 from titles.models import Genre, Category, Title
+from titles.permission import IsAdminOrReadOnly
 from titles.serializers import (TitleSerializer,
-                                GenreSerializer, CategorySerializer)
+                                GenreSerializer, CategorySerializer, TitleCreateSerializer)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
-    permission_classes = []
-    lookup_field = 'id'
-    lookup_url_kwarg = 'title_id'
+    queryset = Title.objects.select_related('category').prefetch_related('genre').all().order_by('id')
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['category__slug', 'genre__slug', 'name', 'year']
+    filterset_class = (TitleFilter,)
     http_method_names = ['get', 'post', 'patch', 'delete']
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return TitleSerializer
+        return TitleCreateSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all()
+    queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
-    permission_classes = []
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name',]
+    search_fields = ('name',)
     lookup_field = 'slug'
     http_method_names = ['get', 'post', 'delete']
 
@@ -32,7 +39,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
     permission_classes = []
     filter_backends = [filters.SearchFilter]

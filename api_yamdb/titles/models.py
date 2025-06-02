@@ -87,9 +87,9 @@ class Title(models.Model):
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
-    #@property
-    #def rating(self):
-     #   return self.reviews.aggregate(Avg('score'))['score__avg']
+    @property
+    def rating(self):
+        return self.reviews.aggregate(Avg('score'))['score__avg']
 
     def __str__(self):
         """
