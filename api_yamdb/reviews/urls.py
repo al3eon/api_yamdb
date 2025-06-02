@@ -3,6 +3,7 @@ from rest_framework import routers
 
 from reviews.views import CommentViewSet, ReviewViewSet
 
+
 v1_router = routers.DefaultRouter()
 v1_router.register(
     r'titles/(?P<title_id>\d+)/reviews',

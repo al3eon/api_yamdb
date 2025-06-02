@@ -4,6 +4,7 @@ from django.db import models
 
 from titles.models import Title
 
+
 MIN_SCORE = 1
 MAX_SCORE = 10
 
