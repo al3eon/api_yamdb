@@ -1,10 +1,10 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from api.views import UserViewSet, signup, token
 
 router = DefaultRouter()
-router.register('users', UserViewSet, basename='users')  # Добавлен basename
+router.register('users', UserViewSet, basename='users')
 
 urlpatterns = [
     path('v1/', include([

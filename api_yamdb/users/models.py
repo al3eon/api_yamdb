@@ -3,9 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from api.validators import username_validator
-from api_yamdb.settings import (
-    LIMIT_USERNAME, LIMIT_EMAIL, LIMIT_CODE, OUTPUT_LENGTH
-)
+from api_yamdb.settings import LIMIT_CODE, LIMIT_EMAIL, LIMIT_USERNAME, OUTPUT_LENGTH
 
 
 class User(AbstractUser):

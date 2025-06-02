@@ -1,16 +1,21 @@
-from rest_framework import viewsets, filters, status
-from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
+from rest_framework.response import Response
 
+from api.permissions import IsAdminOrReadOnly
 from titles.filters import TitleFilter
-from titles.models import Genre, Category, Title
-from titles.permission import IsAdminOrReadOnly
-from titles.serializers import (TitleSerializer,
-                                GenreSerializer, CategorySerializer, TitleCreateSerializer)
+from titles.models import Category, Genre, Title
+from titles.serializers import (
+    CategorySerializer,
+    GenreSerializer,
+    TitleCreateSerializer,
+    TitleSerializer,
+)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.select_related('category').prefetch_related('genre').all().order_by('id')
+    queryset = Title.objects.select_related('category') \
+        .prefetch_related('genre').all().order_by('id')
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
@@ -43,7 +48,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name',]
+    search_fields = ['name']
     lookup_field = 'slug'
     http_method_names = ['get', 'post', 'delete']
 

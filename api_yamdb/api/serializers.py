@@ -1,13 +1,12 @@
-# from django.conf import settings
-from rest_framework import serializers
-from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+from rest_framework_simplejwt.tokens import AccessToken
 
-from users.models import User
 from api.validators import username_validator
-from api_yamdb.settings import LIMIT_USERNAME, LIMIT_EMAIL, DEFAULT_FROM_EMAIL
+from api_yamdb.settings import DEFAULT_FROM_EMAIL, LIMIT_EMAIL, LIMIT_USERNAME
+from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
