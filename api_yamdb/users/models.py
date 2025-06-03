@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from users.constants import LIMIT_EMAIL, LIMIT_USERNAME, OUTPUT_LENGTH
-from api.validators import username_validator
+from users.validators import username_validator
 
 
 class User(AbstractUser):

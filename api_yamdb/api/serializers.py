@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.constants import LIMIT_EMAIL, LIMIT_USERNAME
-from api.validators import username_validator
+from users.validators import username_validator
 
 
 User = get_user_model()

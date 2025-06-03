@@ -2,10 +2,10 @@ import re
 
 from django.core.exceptions import ValidationError
 
-from api_yamdb.settings import LIMIT_NAME, LIMIT_SLUG
+from users.constants import LIMIT_NAME, LIMIT_SLUG
 from titles.models import Category, Genre
 
-# Этот валидатор унесем в приложение users. Приоритет в данном случае отдаем модели - где модель, там и валидатор.
+
 def username_validator(value):
     if value.lower() == 'me':
         raise ValidationError('Имя пользователя "me" использовать нельзя!')
@@ -13,7 +13,6 @@ def username_validator(value):
     invalid_chars = re.sub(r'^[\w.@+-]+\Z', '', value)
     if invalid_chars:
         raise ValidationError(
-            # Отлично! Выводятся использованные недопустимые символы.
             f'Имя пользователя содержит недопустимые символы: {invalid_chars}'
         )
     return value
@@ -25,9 +24,7 @@ def slug_validator_genre(value):
         raise ValidationError('Не правильный формат Slug')
 
     if len(value) > LIMIT_SLUG:
-        raise ValidationError(
-            ('Slug может содержать максимум 50 символов')
-        )
+        raise ValidationError('Slug может содержать максимум 50 символов')
 
     queryset = Genre.objects.filter(slug=value)
 
@@ -40,14 +37,12 @@ def slug_validator_category(value):
         raise ValidationError('Не правильный формат Slug')
 
     if len(value) > LIMIT_SLUG:
-        raise ValidationError(
-            ('Slug может содержать максимум 50 символов')
-        )
+        raise ValidationError('Slug может содержать максимум 50 символов')
 
     queryset = Category.objects.filter(slug=value)
 
     if queryset.exists():
-        raise ValidationError('Такой slug уже существует для жанра.')
+        raise ValidationError('Такой slug уже существует для категории.')
 
 
 def name_validator(value):
