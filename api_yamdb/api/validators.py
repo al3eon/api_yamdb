@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from api_yamdb.settings import LIMIT_NAME, LIMIT_SLUG
 from titles.models import Category, Genre
 
-
+# Этот валидатор унесем в приложение users. Приоритет в данном случае отдаем модели - где модель, там и валидатор.
 def username_validator(value):
     if value.lower() == 'me':
         raise ValidationError('Имя пользователя "me" использовать нельзя!')
@@ -13,11 +13,13 @@ def username_validator(value):
     invalid_chars = re.sub(r'^[\w.@+-]+\Z', '', value)
     if invalid_chars:
         raise ValidationError(
+            # Отлично! Выводятся использованные недопустимые символы.
             f'Имя пользователя содержит недопустимые символы: {invalid_chars}'
         )
     return value
 
-
+# 23-56 строки лишние. Эти проверки делаются за счет настройки полей в моделях.
+# Модельные сериализаторы автоматически подтянут настройки полей.
 def slug_validator_genre(value):
     if not re.match(r'^[-a-zA-Z0-9_]+$', value):
         raise ValidationError('Не правильный формат Slug')

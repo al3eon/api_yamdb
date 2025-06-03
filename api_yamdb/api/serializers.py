@@ -5,7 +5,10 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.validators import username_validator
+# Доступ к настройкам из других файлов необходимо получать через импорт: from django.conf import settings.
+# Этот способ даст доступ в том числе к настройкам, добавляемым под капотом, и гарантирует, что мы используем актуальные настройки.
 from api_yamdb.settings import DEFAULT_FROM_EMAIL, LIMIT_EMAIL, LIMIT_USERNAME
+# Модель пользователя получаем через функцию get_user_model
 from users.models import User
 
 
@@ -17,6 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name', 'bio', 'role'
         )
 
+    # Лишний метод. Модельный сериализатор подтянет настройки поля из модели, а там уже зашита эта проверка в параметр validators
     def validate_username(self, value):
         return username_validator(value)
 
