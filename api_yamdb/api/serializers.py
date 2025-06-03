@@ -1,15 +1,16 @@
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
+from api.constants import LIMIT_EMAIL, LIMIT_USERNAME
 from api.validators import username_validator
-# Доступ к настройкам из других файлов необходимо получать через импорт: from django.conf import settings.
-# Этот способ даст доступ в том числе к настройкам, добавляемым под капотом, и гарантирует, что мы используем актуальные настройки.
-from api_yamdb.settings import DEFAULT_FROM_EMAIL, LIMIT_EMAIL, LIMIT_USERNAME
-# Модель пользователя получаем через функцию get_user_model
-from users.models import User
+
+
+User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,10 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name',
             'last_name', 'bio', 'role'
         )
-
-    # Лишний метод. Модельный сериализатор подтянет настройки поля из модели, а там уже зашита эта проверка в параметр validators
-    def validate_username(self, value):
-        return username_validator(value)
 
 
 class UserEditSerializer(UserSerializer):
@@ -70,7 +67,7 @@ class SignupSerializer(serializers.Serializer):
         send_mail(
             'Код подтверждения для YaMDb',
             f'Ваш код подтверждения: {user.confirmation_code}',
-            DEFAULT_FROM_EMAIL,
+            settings.DEFAULT_FROM_EMAIL,
             [user.email],
             fail_silently=False,
         )
@@ -86,7 +83,5 @@ class TokenSerializer(serializers.Serializer):
         if not default_token_generator.check_token(
             user, data['confirmation_code']
         ):
-            raise serializers.ValidationError(
-                'Неверный код подтверждения'
-            )
+            raise serializers.ValidationError('Неверный код подтверждения')
         return {'token': str(AccessToken.for_user(user))}
