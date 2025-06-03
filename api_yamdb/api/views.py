@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view
@@ -11,7 +12,8 @@ from api.serializers import (
     UserEditSerializer,
     UserSerializer,
 )
-from users.models import User
+
+User = get_user_model()
 
 
 class UserViewSet(
@@ -29,7 +31,6 @@ class UserViewSet(
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ['=username']
     filterset_fields = ['username']
-
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
     @action(
@@ -42,7 +43,9 @@ class UserViewSet(
         user = request.user
         if request.method == 'PATCH':
             serializer = self.get_serializer(
-                user, data=request.data, partial=True
+                instance=user,
+                data=request.data,
+                partial=True
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
