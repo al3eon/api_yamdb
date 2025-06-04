@@ -2,10 +2,11 @@
 
 import django.contrib.auth.models
 import django.utils.timezone
-from django.db import migrations, models
 from django.core.validators import RegexValidator
+from django.db import migrations, models
 
 from users.validators import username_validator
+
 
 class Migration(migrations.Migration):
 

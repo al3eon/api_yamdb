@@ -9,7 +9,6 @@ from rest_framework_simplejwt.tokens import AccessToken
 from api.constants import LIMIT_EMAIL, LIMIT_USERNAME
 from users.validators import username_validator
 
-
 User = get_user_model()
 
 
