@@ -142,10 +142,6 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         model = Title
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
-    # Лишний метод.
-    def validate(self, attrs):
-        return super().validate(attrs)
-
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
