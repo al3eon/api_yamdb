@@ -2,34 +2,35 @@ from django.contrib.auth import get_user_model
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import filters, status, viewsets, mixins
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api.filters import TitleFilter
 from api.permissions import (
-    IsAdmin, IsAdminOrReadOnly, IsAuthorOrStaffOrReadOnly
+    IsAdmin,
+    IsAdminOrReadOnly,
+    IsAuthorOrStaffOrReadOnly,
 )
 from api.serializers import (
-    CategorySerializer, CommentSerializer, GenreSerializer,
-    ReviewSerializer, SignupSerializer, TitleCreateSerializer,
-    TitleSerializer, TokenSerializer, UserEditSerializer,
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    SignupSerializer,
+    TitleCreateSerializer,
+    TitleSerializer,
+    TokenSerializer,
+    UserEditSerializer,
     UserSerializer,
 )
-from reviews.filters import TitleFilter
 from reviews.models import Category, Genre, Review, Title
 
 User = get_user_model()
 
 
-class UserViewSet(
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet
-):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
@@ -76,10 +77,13 @@ def token(request):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.select_related('category') \
-        .prefetch_related('genre') \
-        .annotate(rating=Avg('reviews__score')) \
-        .order_by('id')
+    queryset = (
+        Title.objects
+        .select_related('category')
+        .prefetch_related('genre')
+        .annotate(rating=Avg('reviews__score'))
+        .order_by('name', 'year')
+    )
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
@@ -90,42 +94,33 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitleSerializer
         return TitleCreateSerializer
 
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
 
-
-class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all().order_by('name')
-    serializer_class = GenreSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ('name',)
-    lookup_field = 'slug'
-    http_method_names = ['get', 'post', 'delete']
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all().order_by('name')
-    serializer_class = CategorySerializer
+class BaseGenreCategoryViewSet(mixins.DestroyModelMixin,
+                               mixins.CreateModelMixin,
+                               mixins.ListModelMixin,
+                               viewsets.GenericViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
     lookup_field = 'slug'
-    http_method_names = ['get', 'post', 'delete']
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
-class BaseViewSet(viewsets.ModelViewSet):
+class GenreViewSet(BaseGenreCategoryViewSet):
+    queryset = Genre.objects.all().order_by('name')
+    serializer_class = GenreSerializer
+
+
+class CategoryViewSet(BaseGenreCategoryViewSet):
+    queryset = Category.objects.all().order_by('name')
+    serializer_class = CategorySerializer
+
+
+class BaseReviewCommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrStaffOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
 
-class ReviewViewSet(BaseViewSet):
+class ReviewViewSet(BaseReviewCommentViewSet):
     serializer_class = ReviewSerializer
 
     def get_title(self):
@@ -142,7 +137,7 @@ class ReviewViewSet(BaseViewSet):
         )
 
 
-class CommentViewSet(BaseViewSet):
+class CommentViewSet(BaseReviewCommentViewSet):
     serializer_class = CommentSerializer
 
     def get_review(self):

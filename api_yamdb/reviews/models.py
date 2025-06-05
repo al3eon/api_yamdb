@@ -1,55 +1,51 @@
-import datetime
-
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .constants import LIMIT_NAME, LIMIT_SLUG, MAX_SCORE, MIN_SCORE
+from .validators import year_validator
 
 
-class BaseModel(models.Model):
+class GenreCategoryBaseModel(models.Model):
     name = models.CharField('Название', unique=True, max_length=LIMIT_NAME)
     slug = models.SlugField('Слаг', unique=True, max_length=LIMIT_SLUG)
 
     class Meta:
         abstract = True
-
-
-class Genre(BaseModel):
-
-    class Meta:
         ordering = ['name']
+
+    def __str__(self):
+        return f'{self.__class__.__name__} '
+
+
+class Genre(GenreCategoryBaseModel):
+
+    class Meta(GenreCategoryBaseModel.Meta):
+
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
-    def __str__(self):
-        return self.name
 
+class Category(GenreCategoryBaseModel):
 
-class Category(BaseModel):
+    class Meta(GenreCategoryBaseModel.Meta):
 
-    class Meta:
-        ordering = ['name']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-
-    def __str__(self):
-        return self.name
 
 
 class Title(models.Model):
     name = models.CharField('Название произведения', max_length=LIMIT_NAME)
-    description = models.TextField('Описание', blank=True, null=True)
+    description = models.TextField('Описание', blank=True)
     genre = models.ManyToManyField(
         Genre,
         related_name='titles',
         verbose_name='Жанр',
     )
-    year = models.PositiveSmallIntegerField(
+    year = models.PositiveIntegerField(
         'Год произведения',
         validators=[
-            MinValueValidator(1000),
-            MaxValueValidator(datetime.datetime.now().year)
+            year_validator
         ]
     )
     category = models.ForeignKey(
