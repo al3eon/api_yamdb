@@ -127,11 +127,11 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class TitleCreateSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
-        # Чтобы запрос без жанров не прошел валидацию надо добавить два параметра для этого поля:
-        # allow_null и allow_empty. Значением для обоих будет False.
-        many=True,
         queryset=Genre.objects.all(),
-        slug_field='slug'
+        slug_field='slug',
+        allow_null=False,
+        allow_empty=False,
+        many=True
     )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
