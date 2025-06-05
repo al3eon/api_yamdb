@@ -7,38 +7,25 @@ from django.db import models
 from .constants import LIMIT_NAME, LIMIT_SLUG, MAX_SCORE, MIN_SCORE
 
 
-class BaseModel(models.Model):
-    # Название стоит уточнить. Это не базовая модель, т.к. от нее наследуются не все модели, а лишь часть.
-    # Лучше в названии указать какие поля она добавляет или для каких моделей является базовой.
-    name = models.CharField('Название', unique=True, max_length=LIMIT_NAME)
-    slug = models.SlugField('Слаг', unique=True, max_length=LIMIT_SLUG)
+class NameSlugModel(models.Model):
+    name = models.CharField('Название', max_length=LIMIT_NAME)
+    slug = models.SlugField('Слаг', max_length=LIMIT_SLUG, unique=True)
 
     class Meta:
         abstract = True
-
-
-class Genre(BaseModel):
-
-    class Meta:
-        # Сортировку и метод __str__ тоже убираем в абстрактную модель.
-        # Чтобы сортировка работала надо будет в 22 и 35 строках явно унаследоваться от BaseModel.Meta
         ordering = ['name']
+
+
+class Genre(NameSlugModel):
+    class Meta(NameSlugModel.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
-    def __str__(self):
-        return self.name
 
-
-class Category(BaseModel):
-
-    class Meta:
-        ordering = ['name']
+class Category(NameSlugModel):
+    class Meta(NameSlugModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-
-    def __str__(self):
-        return self.name
 
 
 class Title(models.Model):
