@@ -1,12 +1,17 @@
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.validators import username_validator
-from api_yamdb.settings import DEFAULT_FROM_EMAIL, LIMIT_EMAIL, LIMIT_USERNAME
-from users.models import User
+from api.constants import LIMIT_EMAIL, LIMIT_USERNAME
+from reviews.models import Category, Comment, Genre, Review, Title
+from users.validators import username_validator
+
+
+User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,9 +21,6 @@ class UserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name',
             'last_name', 'bio', 'role'
         )
-
-    def validate_username(self, value):
-        return username_validator(value)
 
 
 class UserEditSerializer(UserSerializer):
@@ -66,7 +68,7 @@ class SignupSerializer(serializers.Serializer):
         send_mail(
             'Код подтверждения для YaMDb',
             f'Ваш код подтверждения: {user.confirmation_code}',
-            DEFAULT_FROM_EMAIL,
+            settings.DEFAULT_FROM_EMAIL,
             [user.email],
             fail_silently=False,
         )
@@ -82,7 +84,97 @@ class TokenSerializer(serializers.Serializer):
         if not default_token_generator.check_token(
             user, data['confirmation_code']
         ):
-            raise serializers.ValidationError(
-                'Неверный код подтверждения'
-            )
+            raise serializers.ValidationError('Неверный код подтверждения')
         return {'token': str(AccessToken.for_user(user))}
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug')
+
+    def validate(self, attrs):
+        return super().validate(attrs)
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+
+    def validate(self, attrs):
+        return super().validate(attrs)
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year',
+                  'description', 'genre', 'category', 'rating')
+
+    def get_rating(self, obj):
+        return obj.rating
+
+    def validate(self, attrs):
+        return super().validate(attrs)
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        many=True,
+        queryset=Genre.objects.all(),
+        slug_field='slug'
+    )
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+
+    def validate(self, attrs):
+        return super().validate(attrs)
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+    )
+
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if request and request.method == 'POST':
+            title_id = self.context['view'].kwargs.get('title_id')
+            author = request.user
+            if Review.objects.filter(
+                title_id=title_id, author=author
+            ).exists():
+                raise serializers.ValidationError(
+                    'Вы уже оставили отзыв на это произведение.'
+                )
+        return data
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+    )
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'review', 'text', 'author', 'pub_date')
+        read_only_fields = ('id', 'review', 'author', 'pub_date')
