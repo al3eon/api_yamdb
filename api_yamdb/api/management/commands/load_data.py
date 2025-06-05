@@ -2,11 +2,12 @@ import csv
 import os
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from reviews.models import Category, Comment, Genre, Review, Title
-from users.models import User
 
+User = get_user_model
 DATA_DIR = os.path.join(settings.BASE_DIR, 'static', 'data')
 
 
