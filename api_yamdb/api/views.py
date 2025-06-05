@@ -115,12 +115,12 @@ class CategoryViewSet(BaseGenreCategoryViewSet):
     serializer_class = CategorySerializer
 
 
-class BaseViewSet(viewsets.ModelViewSet):
+class BaseReviewCommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrStaffOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
 
-class ReviewViewSet(BaseViewSet):
+class ReviewViewSet(BaseReviewCommentViewSet):
     serializer_class = ReviewSerializer
 
     def get_title(self):
@@ -137,7 +137,7 @@ class ReviewViewSet(BaseViewSet):
         )
 
 
-class CommentViewSet(BaseViewSet):
+class CommentViewSet(BaseReviewCommentViewSet):
     serializer_class = CommentSerializer
 
     def get_review(self):
