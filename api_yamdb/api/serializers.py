@@ -6,10 +6,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.constants import LIMIT_EMAIL, LIMIT_USERNAME
 from reviews.models import Category, Comment, Genre, Review, Title
+from users.constants import LIMIT_EMAIL, LIMIT_USERNAME
 from users.validators import username_validator
-
 
 User = get_user_model()
 
@@ -127,9 +126,11 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class TitleCreateSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
-        many=True,
         queryset=Genre.objects.all(),
-        slug_field='slug'
+        slug_field='slug',
+        allow_null=False,
+        allow_empty=False,
+        many=True
     )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
@@ -139,9 +140,6 @@ class TitleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
-
-    def validate(self, attrs):
-        return super().validate(attrs)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
