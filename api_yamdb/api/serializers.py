@@ -6,10 +6,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
-from users.constants import LIMIT_EMAIL, LIMIT_USERNAME
 from reviews.models import Category, Comment, Genre, Review, Title
+from users.constants import LIMIT_EMAIL, LIMIT_USERNAME
 from users.validators import username_validator
-
 
 User = get_user_model()
 

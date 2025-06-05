@@ -1,6 +1,7 @@
 import django_filters
 
 from reviews.models import Title
+
 # Фильтр унесем в приложение api. Это тоже по сути часть API
 
 class TitleFilter(django_filters.FilterSet):

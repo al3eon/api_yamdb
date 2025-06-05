@@ -7,16 +7,24 @@ from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api.filters import TitleFilter
 from api.permissions import (
-    IsAdmin, IsAdminOrReadOnly, IsAuthorOrStaffOrReadOnly
+    IsAdmin,
+    IsAdminOrReadOnly,
+    IsAuthorOrStaffOrReadOnly,
 )
 from api.serializers import (
-    CategorySerializer, CommentSerializer, GenreSerializer,
-    ReviewSerializer, SignupSerializer, TitleCreateSerializer,
-    TitleSerializer, TokenSerializer, UserEditSerializer,
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    SignupSerializer,
+    TitleCreateSerializer,
+    TitleSerializer,
+    TokenSerializer,
+    UserEditSerializer,
     UserSerializer,
 )
-from api.filters import TitleFilter
 from reviews.models import Category, Genre, Review, Title
 
 User = get_user_model()
@@ -87,26 +95,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleCreateSerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):
-    # Используем ReadOnlyViewSet.
-    # Строки 110-113 удаляем.
-    queryset = Genre.objects.all().order_by('name')
-    serializer_class = GenreSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ('name',)
-    lookup_field = 'slug'
-    http_method_names = ['get', 'post', 'delete']
-
-    def retrieve(self, request, *args, **kwargs):
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    # Настройки этого и предыдущего класса будут во многом совпадать.
-    # Вынесем дублирующийся код в общий базовый класс.
-    queryset = Category.objects.all().order_by('name')
-    serializer_class = CategorySerializer
+class BaseGenreCategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
@@ -115,6 +104,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class GenreViewSet(BaseGenreCategoryViewSet):
+    # Используем ReadOnlyViewSet.
+    # Строки 110-113 удаляем.
+    queryset = Genre.objects.all().order_by('name')
+    serializer_class = GenreSerializer
+
+
+class CategoryViewSet(BaseGenreCategoryViewSet):
+    queryset = Category.objects.all().order_by('name')
+    serializer_class = CategorySerializer
 
 
 class BaseViewSet(viewsets.ModelViewSet):
