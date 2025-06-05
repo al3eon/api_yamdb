@@ -127,6 +127,8 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class TitleCreateSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
+        # Чтобы запрос без жанров не прошел валидацию надо добавить два параметра для этого поля:
+        # allow_null и allow_empty. Значением для обоих будет False.
         many=True,
         queryset=Genre.objects.all(),
         slug_field='slug'
@@ -140,6 +142,7 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         model = Title
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
+    # Лишний метод.
     def validate(self, attrs):
         return super().validate(attrs)
 

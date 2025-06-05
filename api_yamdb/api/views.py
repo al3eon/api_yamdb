@@ -16,13 +16,15 @@ from api.serializers import (
     TitleSerializer, TokenSerializer, UserEditSerializer,
     UserSerializer,
 )
-from reviews.filters import TitleFilter
+from api.filters import TitleFilter
 from reviews.models import Category, Genre, Review, Title
 
 User = get_user_model()
 
 
 class UserViewSet(
+    # Тут используем обычный ModelViewSet.
+    # Чтобы ограничить доступные методы, достаточно прописать разрешенные в http_method_names
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
@@ -76,10 +78,15 @@ def token(request):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    # Использование / для переноса строк противоречит PEP8. Используйте скобки.
     queryset = Title.objects.select_related('category') \
         .prefetch_related('genre') \
         .annotate(rating=Avg('reviews__score')) \
         .order_by('id')
+        # Никакого прока от сортировки по техническому полю "ключ" нет.
+        # Учти, что значения ключей - это случайные величины (точнее они могут непредсказуемо измениться).
+        # Поэтому сортировка по ним - это опять случайная последовательность объектов.
+        # Лучше заменить на уникальное предметное поле (можно на несколько полей в случае, когда уникальных полей нет).
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
@@ -90,11 +97,10 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitleSerializer
         return TitleCreateSerializer
 
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
 
 class GenreViewSet(viewsets.ModelViewSet):
+    # Используем ReadOnlyViewSet.
+    # Строки 110-113 удаляем.
     queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly]
@@ -108,6 +114,8 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
+    # Настройки этого и предыдущего класса будут во многом совпадать.
+    # Вынесем дублирующийся код в общий базовый класс.
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]

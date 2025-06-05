@@ -1,16 +1,20 @@
 import django_filters
 
 from reviews.models import Title
-
+# Фильтр унесем в приложение api. Это тоже по сути часть API
 
 class TitleFilter(django_filters.FilterSet):
     genre = django_filters.CharFilter(
         field_name='genre__slug',
-        lookup_expr='exact'
+        lookup_expr='icontains',
     )
     category = django_filters.CharFilter(
         field_name='category__slug',
-        lookup_expr='exact'
+        lookup_expr='icontains',
+    )
+    name = django_filters.CharFilter(
+        field_name='name',
+        lookup_expr='icontains',
     )
 
     class Meta:
