@@ -69,15 +69,13 @@ def token(request):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    # Использование / для переноса строк противоречит PEP8. Используйте скобки.
-    queryset = Title.objects.select_related('category') \
-        .prefetch_related('genre') \
-        .annotate(rating=Avg('reviews__score')) \
-        .order_by('id')
-        # Никакого прока от сортировки по техническому полю "ключ" нет.
-        # Учти, что значения ключей - это случайные величины (точнее они могут непредсказуемо измениться).
-        # Поэтому сортировка по ним - это опять случайная последовательность объектов.
-        # Лучше заменить на уникальное предметное поле (можно на несколько полей в случае, когда уникальных полей нет).
+    queryset = (
+        Title.objects
+        .select_related('category')
+        .prefetch_related('genre')
+        .annotate(rating=Avg('reviews__score'))
+        .order_by('name', 'year')
+    )
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
