@@ -21,7 +21,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'users.apps.UsersConfig',
-    'titles.apps.TitlesConfig',
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
 ]
@@ -128,18 +127,18 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = BASE_DIR / 'send_mail'
 
-OUTPUT_LENGTH = 30
+OUTPUT_LENGTH = 30  # Удаляем
 
-DEFAULT_FROM_EMAIL = 'admin@yamdb.com'
+DEFAULT_FROM_EMAIL = 'admin@yamdb.com'  # Нельзя удалять
 
-LIMIT_USERNAME = 150
+LIMIT_USERNAME = 150  # Удаляем
 
-LIMIT_EMAIL = 254
+LIMIT_EMAIL = 254  # Удаляем
 
-LIMIT_CODE = 150
+LIMIT_CODE = 150  # Удаляем
 
-LIMIT_SLUG = 50
+LIMIT_SLUG = 50  # Удаляем
 
-LIMIT_NAME = 256
+LIMIT_NAME = 256  # Удаляем
 
-MIN_YEAR = 1000
+MIN_YEAR = 1000  # Удаляем вроде)))

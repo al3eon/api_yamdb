@@ -1,65 +1,53 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
-from api.validators import username_validator
-from api_yamdb.settings import (
-    LIMIT_CODE, LIMIT_EMAIL, LIMIT_USERNAME, OUTPUT_LENGTH
-)
+from users.constants import LIMIT_EMAIL, LIMIT_USERNAME, OUTPUT_LENGTH
+from users.validators import username_validator
 
 
 class User(AbstractUser):
     class Role(models.TextChoices):
-        USER = 'user', _('Пользователь')
-        MODERATOR = 'moderator', _('Модератор')
-        ADMIN = 'admin', _('Администратор')
+        USER = 'user', 'Пользователь'
+        MODERATOR = 'moderator', 'Модератор'
+        ADMIN = 'admin', 'Администратор'
 
     username = models.CharField(
-        _('Имя пользователя'),
+        'Имя пользователя',
         max_length=LIMIT_USERNAME,
         unique=True,
-        help_text=_(
-            'Обязательное поле. Не более %(limit)s символов. '
-            'Только буквы, цифры и @/./+/-/_.'
-        ) % {'limit': LIMIT_USERNAME},
+        help_text=f'Обязательное поле. Не более {LIMIT_USERNAME} символов. '
+                  f'Только буквы, цифры и @/./+/-/_.',
         validators=[username_validator],
         error_messages={
-            'unique': _('Пользователь с таким именем уже существует!'),
+            'unique': 'Пользователь с таким именем уже существует!',
         },
     )
     email = models.EmailField(
-        _('Электронная почта'),
+        'Электронная почта',
         max_length=LIMIT_EMAIL,
         unique=True,
         error_messages={
-            'unique': _('Пользователь с таким email уже существует!'),
+            'unique': 'Пользователь с таким email уже существует!',
         },
     )
     role = models.CharField(
-        _('Роль'),
+        'Роль',
         max_length=max(len(role) for role in Role.values),
         choices=Role.choices,
         default=Role.USER,
     )
     bio = models.TextField(
-        _('Биография'),
+        'Биография',
         blank=True,
-        help_text=_('Расскажите немного о себе')
-    )
-    confirmation_code = models.CharField(
-        _('Код подтверждения'),
-        max_length=LIMIT_CODE,
-        blank=True,
-        null=True,
-        help_text=_('Код для подтверждения регистрации')
+        help_text='Расскажите немного о себе'
     )
     first_name = models.CharField(
-        _('Имя'),
+        'Имя',
         max_length=LIMIT_USERNAME,
         blank=True
     )
     last_name = models.CharField(
-        _('Фамилия'),
+        'Фамилия',
         max_length=LIMIT_USERNAME,
         blank=True
     )
@@ -80,8 +68,8 @@ class User(AbstractUser):
         )
 
     class Meta:
-        verbose_name = _('Пользователь')
-        verbose_name_plural = _('Пользователи')
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
         ordering = ('username',)
 
     def __str__(self):

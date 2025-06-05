@@ -2,9 +2,10 @@
 
 import django.contrib.auth.models
 import django.utils.timezone
+from django.core.validators import RegexValidator
 from django.db import migrations, models
 
-import api.validators
+from users.validators import username_validator
 
 
 class Migration(migrations.Migration):
@@ -26,15 +27,64 @@ class Migration(migrations.Migration):
                 ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
                 ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('username', models.CharField(error_messages={'unique': 'Пользователь с таким именем уже существует!'}, help_text='Обязательное поле. Не более 150 символов. Только буквы, цифры и @/./+/-/_.', max_length=150, unique=True, validators=[api.validators.username_validator], verbose_name='Имя пользователя')),
-                ('email', models.EmailField(error_messages={'unique': 'Пользователь с таким email уже существует!'}, max_length=254, unique=True, verbose_name='Электронная почта')),
-                ('role', models.CharField(choices=[('user', 'Пользователь'), ('moderator', 'Модератор'), ('admin', 'Администратор')], default='user', max_length=9, verbose_name='Роль')),
-                ('bio', models.TextField(blank=True, help_text='Расскажите немного о себе', verbose_name='Биография')),
-                ('confirmation_code', models.CharField(blank=True, help_text='Код для подтверждения регистрации', max_length=150, null=True, verbose_name='Код подтверждения')),
-                ('first_name', models.CharField(blank=True, max_length=150, verbose_name='Имя')),
-                ('last_name', models.CharField(blank=True, max_length=150, verbose_name='Фамилия')),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups')),
-                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions')),
+                ('username', models.CharField(
+                    error_messages={'unique': 'Пользователь с таким именем уже существует!'},
+                    help_text='Обязательное поле. Не более 150 символов. Только буквы, цифры и @/./+/-/_.',
+                    max_length=150,
+                    unique=True,
+                    validators=[username_validator],
+                    verbose_name='Имя пользователя'
+                )),
+                ('email', models.EmailField(
+                    error_messages={'unique': 'Пользователь с таким email уже существует!'},
+                    max_length=254,
+                    unique=True,
+                    verbose_name='Электронная почта'
+                )),
+                ('role', models.CharField(
+                    choices=[('user', 'Пользователь'), ('moderator', 'Модератор'), ('admin', 'Администратор')],
+                    default='user',
+                    max_length=9,
+                    verbose_name='Роль'
+                )),
+                ('bio', models.TextField(
+                    blank=True,
+                    help_text='Расскажите немного о себе',
+                    verbose_name='Биография'
+                )),
+                ('confirmation_code', models.CharField(
+                    blank=True,
+                    help_text='Код для подтверждения регистрации',
+                    max_length=150,
+                    null=True,
+                    verbose_name='Код подтверждения'
+                )),
+                ('first_name', models.CharField(
+                    blank=True,
+                    max_length=150,
+                    verbose_name='Имя'
+                )),
+                ('last_name', models.CharField(
+                    blank=True,
+                    max_length=150,
+                    verbose_name='Фамилия'
+                )),
+                ('groups', models.ManyToManyField(
+                    blank=True,
+                    help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+                    related_name='user_set',
+                    related_query_name='user',
+                    to='auth.Group',
+                    verbose_name='groups'
+                )),
+                ('user_permissions', models.ManyToManyField(
+                    blank=True,
+                    help_text='Specific permissions for this user.',
+                    related_name='user_set',
+                    related_query_name='user',
+                    to='auth.Permission',
+                    verbose_name='user permissions'
+                )),
             ],
             options={
                 'verbose_name': 'Пользователь',
@@ -47,6 +97,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='user',
-            constraint=models.CheckConstraint(check=models.Q(_negated=True, username='me'), name='name_not_me'),
+            constraint=models.CheckConstraint(
+                check=models.Q(_negated=True, username='me'),
+                name='name_not_me'
+            ),
         ),
     ]
